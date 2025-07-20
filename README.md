@@ -29,6 +29,11 @@ Import-Module .\copilot-chatmodes.psd1
 
 ## Functions
 
+### Aliases
+
+The module provides convenient aliases for commonly used functions:
+- `gcmt` → `Get-ChatmodeTool` - Quick access to tool analysis and search
+
 ### Get-Chatmode
 Discovers available chat modes from the GitHub repository.
 
@@ -78,9 +83,25 @@ Get-Chatmode "*azure*" | Install-Chatmode
 ### Get-ChatmodeTool
 Analyzes and searches tools across chat modes with multiple operation modes.
 
+**Alias:** `gcmt` (shorthand for Get-ChatmodeTool)
+
+```powershell
+# Use the full function name
+Get-ChatmodeTool
+
+# Or use the convenient alias
+gcmt
+
+# Both work the same way
+gcmt *azure*
+Get-ChatmodeTool *azure*
+```
+
 #### List All Chat Modes (Default)
 ```powershell
 Get-ChatmodeTool
+# Or use the alias
+gcmt
 ```
 **Output:**
 ```
@@ -94,12 +115,14 @@ azure-saas-architect.chatmode             {changes, codebase, editFiles, extensi
 ```powershell
 # Find tools starting with "edit"
 Get-ChatmodeTool edit*
+# Or using the alias
+gcmt edit*
 
 # Find tools containing "azure"
-Get-ChatmodeTool *azure*
+gcmt *azure*
 
 # Find exact tool match
-Get-ChatmodeTool "microsoft.docs.mcp"
+gcmt "microsoft.docs.mcp"
 ```
 **Output:**
 ```
@@ -207,29 +230,29 @@ Get-ChildItem .\.github\chatmodes\
 ### Analyze Tool Usage Across Chat Modes
 ```powershell
 # Find which chat modes use specific tools
-Get-ChatmodeTool "azure_design_architecture"
+gcmt "azure_design_architecture"
 
 # Count tools per chat mode
-Get-ChatmodeTool | ForEach-Object { "$($_.Filename): $($_.Tools.Count) tools" }
+gcmt | ForEach-Object { "$($_.Filename): $($_.Tools.Count) tools" }
 
 # Get unique tools across all chat modes
-Get-ChatmodeTool -Mode "*" | Select-Object Name -Unique | Sort-Object Name
+gcmt -Mode "*" | Select-Object Name -Unique | Sort-Object Name
 ```
 
 ### Find Chat Modes with Specific Capabilities
 ```powershell
 # Find chat modes that can edit files
-Get-ChatmodeTool editFiles
+gcmt editFiles
 
 # Find chat modes with Azure-specific tools
-Get-ChatmodeTool *azure* | Group-Object Source
+gcmt *azure* | Group-Object Source
 
 # Explore tools in bicep-related chat modes
-Get-ChatmodeTool -Mode *bicep*
+gcmt -Mode *bicep*
 
 # Find specific tools in specific chat modes
-Get-ChatmodeTool run* -Mode *terraform*
-Get-ChatmodeTool microsoft* -Mode azure-saas*
+gcmt run* -Mode *terraform*
+gcmt microsoft* -Mode azure-saas*
 ```
 
 ## Authentication
