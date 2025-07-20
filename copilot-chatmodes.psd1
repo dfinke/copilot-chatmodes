@@ -10,5 +10,6 @@
         'Get-ChatmodeTool'
         'Install-Chatmode'
     )
+    AliasesToExport   = @('gcmt')
     PowerShellVersion = '5.1'
 }
