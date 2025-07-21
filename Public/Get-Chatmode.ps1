@@ -1,7 +1,7 @@
 function Get-Chatmode {
     [CmdletBinding()]
     param(
-        [string]$ChatModeName = '*'
+        [string[]]$ChatModeName = '*'
     )
     $repoOwner = 'github'
     $repoName = 'awesome-copilot'
@@ -24,16 +24,22 @@ function Get-Chatmode {
         $response = Invoke-RestMethod -Uri $apiUrl -Headers $headers -ErrorAction Stop
 
         $files = $response | Where-Object { $_.type -eq 'file' }
-        $filtered = $files | Where-Object { 
-            $nameWithoutExt = $_.name -replace '\.(md|chatmode)$', ''
-            $nameWithoutExt -like $ChatModeName 
+        $allMatches = @()
+        foreach ($pattern in $ChatModeName) {
+            $filtered = $files | Where-Object {
+                $nameWithoutExt = $_.name -replace '\.(md|chatmode)$', ''
+                $nameWithoutExt -like $pattern
+            }
+            if ($filtered) {
+                Write-Host "Files in '$directory' directory of $($repoOwner)/$($repoName) matching '$pattern':" -ForegroundColor Cyan
+                $allMatches += $filtered
+            }
+            else {
+                Write-Host "No files found matching '$pattern' in the directory." -ForegroundColor Yellow
+            }
         }
-        if ($filtered) {
-            Write-Host "Files in '$directory' directory of $($repoOwner)/$($repoName) matching '$ChatModeName':" -ForegroundColor Cyan
-            $filtered.name
-        }
-        else {
-            Write-Host "No files found matching '$ChatModeName' in the directory." -ForegroundColor Yellow
+        if ($allMatches) {
+            $allMatches | Select-Object -Unique -ExpandProperty name
         }
     }
     catch {
