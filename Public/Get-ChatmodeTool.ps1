@@ -71,7 +71,7 @@ function Get-ChatmodeTool {
         [string[]]$Name,
         
         [Parameter()]
-        [string]$Mode
+        [string[]]$Mode
     )
     
     # Define the chatmodes directory path relative to the current working directory
@@ -93,11 +93,20 @@ function Get-ChatmodeTool {
     
     $allResults = @()
 
+
     # Expand comma-separated patterns in $Name
     $namePatterns = @()
     if ($Name) {
         foreach ($n in $Name) {
             $namePatterns += ($n -split ',') | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+        }
+    }
+
+    # Expand comma-separated patterns in $Mode
+    $modePatterns = @()
+    if ($Mode) {
+        foreach ($m in $Mode) {
+            $modePatterns += ($m -split ',') | ForEach-Object { $_.Trim() } | Where-Object { $_ }
         }
     }
 
@@ -124,9 +133,16 @@ function Get-ChatmodeTool {
                     # Get the filename without extension
                     $filename = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
 
-                    if ($Mode) {
-                        # Mode filter: check if filename matches mode pattern
-                        if ($filename -like $Mode) {
+                    if ($modePatterns.Count) {
+                        # Mode filter: check if filename matches any mode pattern
+                        $modeMatch = $false
+                        foreach ($mp in $modePatterns) {
+                            if ($filename -like $mp) {
+                                $modeMatch = $true
+                                break
+                            }
+                        }
+                        if ($modeMatch) {
                             if ($namePatterns.Count) {
                                 # Both Mode and Name: return tools matching any name pattern from matching files
                                 foreach ($tool in $tools) {
