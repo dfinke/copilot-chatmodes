@@ -34,8 +34,12 @@ Import-Module .\copilot-chatmodes.psd1
 The module provides convenient aliases for commonly used functions:
 - `gcmt` → `Get-ChatmodeTool` - Quick access to tool analysis and search
 
+
 ### Get-Chatmode
 Discovers available chat modes from the GitHub repository.
+
+#### New: Multiple ChatModeName Support
+You can now pass multiple names or patterns to `Get-Chatmode` (as separate arguments, not as an array). This allows you to search for several chat modes in a single call.
 
 ```powershell
 # Get all available chat modes
@@ -44,15 +48,18 @@ Get-Chatmode
 # Search for specific chat modes (supports wildcards)
 Get-Chatmode "*azure*"
 Get-Chatmode "python*"
+
+# Search for multiple patterns at once (comma-separated, no quotes needed)
+Get-Chatmode *azure*,python*,bicep*
 ```
 
 **Output Example:**
 ```
-Name                    Size LastModified        
-----                    ---- ------------        
-azure-architect         1234 12/15/2024 3:45:32 PM
-azure-developer         2345 12/15/2024 4:22:11 PM
-python-expert           1567 12/14/2024 2:15:44 PM
+Files in 'chatmodes' directory of github/awesome-copilot matching '*azure*':
+azure-architect.md
+azure-developer.md
+Files in 'chatmodes' directory of github/awesome-copilot matching 'python*':
+python-expert.md
 ```
 
 ### Get-ChatmodeContent
@@ -82,12 +89,18 @@ Get-Chatmode "*azure*" | Install-Chatmode
 
 
 ### Get-ChatmodeTool
+
 Analyzes and searches tools across chat modes with multiple operation modes.
 
 **Alias:** `gcmt` (shorthand for Get-ChatmodeTool)
 
-#### New: Multiple Values for Name Parameter
-You can now pass multiple tool names or patterns to the `-Name` parameter (as separate arguments, not as an array). This allows you to search for multiple tools in a single command.
+#### Enhanced: Multiple Patterns for Name and Mode
+You can now pass multiple tool names or patterns to the `-Name` parameter, and multiple chat mode patterns to the `-Mode` parameter. Both parameters accept:
+- Multiple arguments (space-separated)
+- Comma-separated values (e.g. `editFiles,run*`)
+- Wildcards (`*` and `?`)
+
+This allows you to search for several tools or chat modes in a single call, with flexible pattern matching.
 
 ```powershell
 # Use the full function name
@@ -100,13 +113,15 @@ gcmt
 gcmt *azure*
 Get-ChatmodeTool *azure*
 
-# Pass multiple tool names or patterns (no array needed)
+# Pass multiple tool names or patterns (space or comma separated)
 Get-ChatmodeTool -Name editFiles run* *azure*
+Get-ChatmodeTool -Name editFiles,run*,*azure*
 gcmt -Name editFiles run* *azure*
+gcmt -Name editFiles,run*
 
-# Combine with Mode filtering
-Get-ChatmodeTool -Name editFiles run* -Mode *bicep*
-gcmt -Name editFiles run* -Mode *bicep*
+# Combine with Mode filtering (also supports multiple/comma-separated patterns)
+Get-ChatmodeTool -Name editFiles run* -Mode *bicep*,azure-*
+gcmt -Name editFiles,run* -Mode *bicep*,azure-*
 ```
 
 #### List All Chat Modes (Default)
@@ -197,31 +212,34 @@ Get-ChatmodeTool
 
 
 ### 2. Tool Search (Name Parameter)
-Search for tools across all chat modes. The `Name` parameter now accepts one or more strings/patterns:
+Search for tools across all chat modes. The `Name` parameter now accepts one or more strings or comma-separated patterns:
 ```powershell
 # Single pattern or name
 Get-ChatmodeTool run*          # Find all tools starting with "run"
 Get-ChatmodeTool *azure*       # Find all tools containing "azure"
 Get-ChatmodeTool editFiles     # Find exact tool matches
 
-# Multiple patterns/names (no array needed)
+# Multiple patterns/names (space or comma separated)
 Get-ChatmodeTool -Name editFiles run* *azure*
+Get-ChatmodeTool -Name editFiles,run*,*azure*
 ```
 
 ### 3. Chat Mode Filter (Mode Parameter)
-List all tools from specific chat modes:
+List all tools from specific chat modes. The `-Mode` parameter also supports multiple or comma-separated patterns:
 ```powershell
 Get-ChatmodeTool -Mode *bicep*                    # All tools from bicep chat modes
 Get-ChatmodeTool -Mode azure-saas-architect       # All tools from specific mode
 Get-ChatmodeTool -Mode azure-verified*            # All tools from matching modes
+Get-ChatmodeTool -Mode azure-verified*,*bicep*    # Multiple patterns (comma separated)
 ```
 
 ### 4. Combined Search (Both Parameters)
-The most powerful feature - search for specific tools within specific chat modes:
+The most powerful feature - search for specific tools within specific chat modes. Both parameters accept multiple/comma-separated patterns:
 ```powershell
-Get-ChatmodeTool run* -Mode *bicep*               # Run tools in bicep modes
-Get-ChatmodeTool -Mode *terraform* azure*        # Azure tools in terraform modes
-Get-ChatmodeTool microsoft* -Mode *architect*     # Microsoft tools in architect modes
+Get-ChatmodeTool run* -Mode *bicep*                       # Run tools in bicep modes
+Get-ChatmodeTool -Mode *terraform* azure*                 # Azure tools in terraform modes
+Get-ChatmodeTool microsoft* -Mode *architect*             # Microsoft tools in architect modes
+Get-ChatmodeTool -Name run*,editFiles -Mode *bicep*,*terraform*  # Multiple tool and mode patterns
 ```
 
 **Key Benefits:**
