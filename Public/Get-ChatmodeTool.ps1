@@ -74,8 +74,8 @@ function Get-ChatmodeTool {
         [string]$Mode
     )
     
-    # Define the chatmodes directory path
-    $chatmodesPath = Join-Path $PSScriptRoot "..\.github\chatmodes"
+    # Define the chatmodes directory path relative to the current working directory
+    $chatmodesPath = Join-Path (Get-Location) ".github\chatmodes"
     
     # Check if the chatmodes directory exists
     if (-not (Test-Path $chatmodesPath)) {
