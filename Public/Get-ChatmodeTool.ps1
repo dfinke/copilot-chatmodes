@@ -68,7 +68,7 @@ function Get-ChatmodeTool {
     [CmdletBinding()]
     param(
         [Parameter(Position = 0)]
-        [string]$Name,
+        [string[]]$Name,
         
         [Parameter()]
         [string]$Mode
@@ -92,41 +92,52 @@ function Get-ChatmodeTool {
     }
     
     $allResults = @()
-    
+
+    # Expand comma-separated patterns in $Name
+    $namePatterns = @()
+    if ($Name) {
+        foreach ($n in $Name) {
+            $namePatterns += ($n -split ',') | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+        }
+    }
+
     foreach ($file in $chatmodeFiles) {
         Write-Verbose "Processing file: $($file.Name)"
-        
+
         try {
             # Read the file content
             $content = Get-Content -Path $file.FullName -Raw
-            
+
             # Extract the YAML front matter
             if ($content -match '(?s)^---\s*\r?\n(.*?)\r?\n---') {
                 $yamlContent = $matches[1]
-                
+
                 # Parse the tools line using regex
                 if ($yamlContent -match "tools:\s*\[(.*?)\]") {
                     $toolsString = $matches[1]
-                    
+
                     # Split the tools string and clean up each tool name
                     $tools = $toolsString -split ',' | ForEach-Object {
                         $_.Trim().Trim("'").Trim('"')
                     } | Where-Object { $_ -ne '' }
-                    
+
                     # Get the filename without extension
                     $filename = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
-                    
+
                     if ($Mode) {
                         # Mode filter: check if filename matches mode pattern
                         if ($filename -like $Mode) {
-                            if ($Name) {
-                                # Both Mode and Name: return tools matching name pattern from matching files
+                            if ($namePatterns.Count) {
+                                # Both Mode and Name: return tools matching any name pattern from matching files
                                 foreach ($tool in $tools) {
-                                    if ($tool -like $Name) {
-                                        $allResults += [PSCustomObject]@{
-                                            Type   = 'Chatmode'
-                                            Name   = $tool
-                                            Source = $filename
+                                    foreach ($pattern in $namePatterns) {
+                                        if ($tool -like $pattern) {
+                                            $allResults += [PSCustomObject]@{
+                                                Type   = 'Chatmode'
+                                                Name   = $tool
+                                                Source = $filename
+                                            }
+                                            break
                                         }
                                     }
                                 }
@@ -143,14 +154,17 @@ function Get-ChatmodeTool {
                             }
                         }
                     }
-                    elseif ($Name) {
-                        # Name filter only: return individual tools matching the pattern from all files
+                    elseif ($namePatterns.Count) {
+                        # Name filter only: return individual tools matching any pattern from all files
                         foreach ($tool in $tools) {
-                            if ($tool -like $Name) {
-                                $allResults += [PSCustomObject]@{
-                                    Type   = 'Chatmode'
-                                    Name   = $tool
-                                    Source = $filename
+                            foreach ($pattern in $namePatterns) {
+                                if ($tool -like $pattern) {
+                                    $allResults += [PSCustomObject]@{
+                                        Type   = 'Chatmode'
+                                        Name   = $tool
+                                        Source = $filename
+                                    }
+                                    break
                                 }
                             }
                         }
@@ -175,6 +189,6 @@ function Get-ChatmodeTool {
             Write-Error "Error processing file $($file.Name): $($_.Exception.Message)"
         }
     }
-    
+
     return $allResults
 }
