@@ -80,10 +80,14 @@ Install-Chatmode -ChatModeName "python-expert" -Destination ".\my-chatmodes"
 Get-Chatmode "*azure*" | Install-Chatmode
 ```
 
+
 ### Get-ChatmodeTool
 Analyzes and searches tools across chat modes with multiple operation modes.
 
 **Alias:** `gcmt` (shorthand for Get-ChatmodeTool)
+
+#### New: Multiple Values for Name Parameter
+You can now pass multiple tool names or patterns to the `-Name` parameter (as separate arguments, not as an array). This allows you to search for multiple tools in a single command.
 
 ```powershell
 # Use the full function name
@@ -95,6 +99,14 @@ gcmt
 # Both work the same way
 gcmt *azure*
 Get-ChatmodeTool *azure*
+
+# Pass multiple tool names or patterns (no array needed)
+Get-ChatmodeTool -Name editFiles run* *azure*
+gcmt -Name editFiles run* *azure*
+
+# Combine with Mode filtering
+Get-ChatmodeTool -Name editFiles run* -Mode *bicep*
+gcmt -Name editFiles run* -Mode *bicep*
 ```
 
 #### List All Chat Modes (Default)
@@ -183,12 +195,17 @@ Returns overview of all chat modes with their tool collections:
 Get-ChatmodeTool
 ```
 
+
 ### 2. Tool Search (Name Parameter)
-Search for tools across all chat modes:
+Search for tools across all chat modes. The `Name` parameter now accepts one or more strings/patterns:
 ```powershell
+# Single pattern or name
 Get-ChatmodeTool run*          # Find all tools starting with "run"
 Get-ChatmodeTool *azure*       # Find all tools containing "azure"
 Get-ChatmodeTool editFiles     # Find exact tool matches
+
+# Multiple patterns/names (no array needed)
+Get-ChatmodeTool -Name editFiles run* *azure*
 ```
 
 ### 3. Chat Mode Filter (Mode Parameter)
