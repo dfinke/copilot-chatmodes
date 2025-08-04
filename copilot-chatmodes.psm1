@@ -6,3 +6,5 @@
 
 # Create aliases
 Set-Alias -Name gcmt -Value Get-ChatmodeTool
+
+. $PSScriptRoot\Public\Show-ChatmodeWebsite.ps1

@@ -27,9 +27,21 @@ Import-Module .\copilot-chatmodes.psd1
 - Internet connection for GitHub API access
 - Optional: `GITHUB_TOKEN` environment variable for higher API rate limits
 
+
 ## Functions
 
 ### Aliases
+
+### Show-ChatmodeWebsite
+Opens the default "awesome chatmodes" website in your browser, or a custom URL if provided.
+
+```powershell
+# Open the awesome chatmodes page (default)
+Show-ChatmodeWebsite
+
+```
+
+Use this function to quickly access the main resource for chatmodes.
 
 The module provides convenient aliases for commonly used functions:
 - `gcmt` → `Get-ChatmodeTool` - Quick access to tool analysis and search

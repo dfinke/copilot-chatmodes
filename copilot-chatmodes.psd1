@@ -5,10 +5,11 @@
     Author            = 'Doug FInke'
     Description       = 'Module to interact with the chatmodes directory of github/awesome-copilot using the GitHub REST API.'
     FunctionsToExport = @(
-        'Get-Chatmode'
-        'Get-ChatmodeContent'
-        'Get-ChatmodeTool'
-        'Install-Chatmode'
+        'Get-Chatmode',
+        'Get-ChatmodeContent',
+        'Get-ChatmodeTool',
+        'Install-Chatmode',
+        'Show-ChatmodeWebsite'
     )
     AliasesToExport   = @('gcmt')
     PowerShellVersion = '5.1'
