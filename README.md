@@ -14,6 +14,11 @@ This module allows you to:
 
 ## Installation
 
+From the PowerShell Gallery:
+```powershell
+Install-Module -Name copilot-chatmodes
+```
+
 ### From Source
 ```powershell
 # Clone the repository
