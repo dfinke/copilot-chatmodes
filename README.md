@@ -2,10 +2,19 @@
 
 A PowerShell module for interacting with GitHub Copilot chat modes, providing easy discovery, installation, and analysis of chat mode configurations.
 
+## Latest updates
+
+- Added repository helper scripts: `InstallModule.ps1` and `PublishToGallery.ps1` to simplify local installation and publishing workflows.
+- Added a set of small public helper scripts in the `Public/` folder for common tasks (discovering, installing, and opening chatmode content).
+- Continued improvements to discovery and search: `Get-Chatmode`, `Get-ChatmodeContent`, `Install-Chatmode`, and `Get-ChatmodeTool` now accept multiple patterns/arguments and support flexible wildcard searches.
+
+
 ## Overview
 
 This module allows you to:
-- **Discover** available chat modes from the [github/awesome-copilot](https://github.com/github/awesome-copilot) repository
+- **Discover** available chat modes from multiple repositories
+    - [dfinke/awesome-copilot-chatmodes](https://github.com/dfinke/awesome-copilot-chatmodes)
+    - [github/awesome-copilot](https://github.com/github/awesome-copilot)
 - **Install** chat modes to your local `.github/chatmodes` directory
 - **Analyze** tools and capabilities across different chat modes
 - **Search** for specific tools or chat modes using wildcards
@@ -27,6 +36,15 @@ Import-Module .\copilot-chatmodes.psd1
 - Internet connection for GitHub API access
 - Optional: `GITHUB_TOKEN` environment variable for higher API rate limits
 
+## Repository scripts
+
+Public helper scripts (in `Public/`) provide small, focused tasks you can run directly from the repo root:
+
+- `Public/Get-Chatmode.ps1` — Wrapper to call `Get-Chatmode` from the module or from source.
+- `Public/Get-ChatmodeContent.ps1` — Fetch and display chatmode content.
+- `Public/Get-ChatmodeTool.ps1` — Run `Get-ChatmodeTool` quickly from the repository.
+- `Public/Install-Chatmode.ps1` — Installs a chatmode file into a local `.github/chatmodes` folder.
+- `Public/Show-ChatmodeWebsite.ps1` — Opens the awesome-copilot chatmodes website in your browser.
 
 ## Functions
 
@@ -46,7 +64,6 @@ Use this function to quickly access the main resource for chatmodes.
 The module provides convenient aliases for commonly used functions:
 - `gcmt` → `Get-ChatmodeTool` - Quick access to tool analysis and search
 
-
 ### Get-Chatmode
 Discovers available chat modes from the GitHub repository.
 
@@ -58,8 +75,8 @@ You can now pass multiple names or patterns to `Get-Chatmode` (as separate argum
 Get-Chatmode
 
 # Search for specific chat modes (supports wildcards)
-Get-Chatmode "*azure*"
-Get-Chatmode "python*"
+Get-Chatmode genui*
+Get-Chatmode python*
 
 # Search for multiple patterns at once (comma-separated, no quotes needed)
 Get-Chatmode *azure*,python*,bicep*
@@ -74,34 +91,18 @@ Files in 'chatmodes' directory of github/awesome-copilot matching 'python*':
 python-expert.md
 ```
 
-### Get-ChatmodeContent
-Retrieves the content of a specific chat mode.
-
-```powershell
-# Get content of a specific chat mode
-Get-ChatmodeContent -ChatModeName "azure-architect"
-
-# View the raw markdown content
-Get-ChatmodeContent "python-expert" | Out-String
-```
-
 ### Install-Chatmode
 Downloads and installs chat modes to your local `.github/chatmodes` directory.
 
 ```powershell
 # Install a specific chat mode
-Install-Chatmode -ChatModeName "azure-architect"
-
-# Install to a custom directory
-Install-Chatmode -ChatModeName "python-expert" -Destination ".\my-chatmodes"
+Install-Chatmode genui
 
 # Install multiple chat modes via pipeline
-Get-Chatmode "*azure*" | Install-Chatmode
+Get-Chatmode *azure* | Install-Chatmode
 ```
 
-
 ### Get-ChatmodeTool
-
 Analyzes and searches tools across chat modes with multiple operation modes.
 
 **Alias:** `gcmt` (shorthand for Get-ChatmodeTool)
@@ -410,3 +411,8 @@ This project is licensed under the terms specified in the LICENSE file.
 ---
 
 **Happy coding with GitHub Copilot chat modes! 🚀**
+
+## Changelog
+
+- 2025-08-18: Added repository helper scripts (`InstallModule.ps1`, `PublishToGallery.ps1`) and `Public/` helper scripts; enhanced search and pattern support across discovery functions.
+
