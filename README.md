@@ -2,13 +2,6 @@
 
 A PowerShell module for interacting with GitHub Copilot chat modes, providing easy discovery, installation, and analysis of chat mode configurations.
 
-## Latest updates
-
-- Added repository helper scripts: `InstallModule.ps1` and `PublishToGallery.ps1` to simplify local installation and publishing workflows.
-- Added a set of small public helper scripts in the `Public/` folder for common tasks (discovering, installing, and opening chatmode content).
-- Continued improvements to discovery and search: `Get-Chatmode`, `Get-ChatmodeContent`, `Install-Chatmode`, and `Get-ChatmodeTool` now accept multiple patterns/arguments and support flexible wildcard searches.
-
-
 ## Overview
 
 This module allows you to:
