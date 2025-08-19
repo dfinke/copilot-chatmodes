@@ -87,6 +87,27 @@ azure-architect.md
 azure-developer.md
 Files in 'chatmodes' directory of github/awesome-copilot matching 'python*':
 python-expert.md
+#### Owner filtering (new)
+You can restrict discovery to a specific GitHub owner using the `-Owner` parameter. When provided, `Get-Chatmode` will only search the repo(s) associated with the owner (via the module's owner->repo mapping or the default repo list). This is useful when you want to limit results to a single maintainer's chatmodes.
+
+```powershell
+# List all chatmodes in owner 'dfinke' (uses dfinke/awesome-copilot-chatmodes)
+Get-Chatmode -Owner dfinke
+
+# Search only dfinke's repo for chatmodes starting with 'genui'
+Get-Chatmode -Owner dfinke 'genui*'
+
+# Search multiple owners (comma-separated or as an array)
+Get-Chatmode -Owner dfinke,github '*azure*'
+
+# Install only chatmodes from a specific owner (filter + install)
+Get-Chatmode -Owner dfinke | Install-Chatmode -Owner dfinke
+
+# Or rely on the piped object's Owner property (Install-Chatmode will respect the object's Owner)
+Get-Chatmode -Owner dfinke | Install-Chatmode
+```
+
+Note: If an owner isn't present in the module's `RepoMap` or default `Repos` list, `Get-Chatmode` will warn and skip that owner. If you'd like dynamic owner->repo discovery, I can add an option to query GitHub for the owner's repositories.
 ```
 
 ### Install-Chatmode
