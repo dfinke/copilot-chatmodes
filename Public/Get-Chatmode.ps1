@@ -15,6 +15,8 @@ function Get-Chatmode {
     [CmdletBinding()]
     param(
         [string[]]$ChatModeName = '*',
+        # Optional owner (e.g. 'dfinke'). When provided, only search repos for that owner.
+        [string[]]$Owner = $null,
         # Accept repos in owner/repo format. Default includes the original repo and the new one.
         [string[]]$Repo = $null,
         [string]$Directory = 'chatmodes'
@@ -35,7 +37,28 @@ function Get-Chatmode {
 
     # If caller didn't provide a Repo list, use the script-level defaults
     if (-not $Repo -or $Repo.Count -eq 0) {
-        $Repo = $script:Repos
+        if ($Owner -and $Owner.Count -gt 0) {
+            # Build repo list from owner(s) using RepoMap when available, otherwise look in default Repos
+            $Repo = @()
+            foreach ($o in $Owner) {
+                if ($script:RepoMap -and $script:RepoMap.ContainsKey($o)) {
+                    $Repo += "$o/$($script:RepoMap[$o])"
+                }
+                else {
+                    # Try to find matching entries in the default Repos (owner/*)
+                    $matches = $script:Repos | Where-Object { $_ -like "$o/*" }
+                    if ($matches) {
+                        $Repo += $matches
+                    }
+                    else {
+                        Write-Host "Owner '$o' not found in RepoMap or default repo list. Skipping." -ForegroundColor Yellow
+                    }
+                }
+            }
+        }
+        else {
+            $Repo = $script:Repos
+        }
     }
 
     foreach ($r in $Repo) {

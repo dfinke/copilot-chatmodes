@@ -3,11 +3,12 @@ function Install-Chatmode {
     param(
         [Parameter(ValueFromPipelineByPropertyName = $true, Position = 0)]
         [string[]]$ChatModeName,
+    # Optional owner filter. When provided, only install chatmodes from this owner(s).
+    [Parameter(ValueFromPipelineByPropertyName = $true)]
+    [string[]]$Owner,
         # Accept FileName from pipeline (e.g. produced by Get-Chatmode)
-        [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$FileName,
-        [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$Owner,
+    [Parameter(ValueFromPipelineByPropertyName = $true)]
+    [string]$FileName,
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [string]$RepoName,
         [string]$Destination = ".github/chatmodes"
@@ -42,7 +43,16 @@ function Install-Chatmode {
 
         # Fall back to bound parameters when per-item properties are not provided
         if (-not $invFileName -and $FileName) { $invFileName = $FileName }
-        if (-not $invOwner -and $Owner) { $invOwner = $Owner }
+
+        # Normalize Owner parameter to an array of allowed owners (if provided)
+        $allowedOwners = $null
+        if ($Owner) {
+            if ($Owner -is [System.Array]) { $allowedOwners = $Owner } else { $allowedOwners = @($Owner) }
+        }
+
+        # Fall back to bound parameters when per-item properties are not provided
+        # If a per-item owner wasn't provided, prefer the first allowed owner for API calls
+        if (-not $invOwner -and $allowedOwners) { $invOwner = $allowedOwners[0] }
         if (-not $invRepoName -and $RepoName) { $invRepoName = $RepoName }
         if (($invChatModeNames.Count -eq 0) -and $ChatModeName) {
             if ($ChatModeName -is [System.Array]) { $invChatModeNames += $ChatModeName } else { $invChatModeNames += $ChatModeName }
@@ -64,13 +74,34 @@ function Install-Chatmode {
         }
 
         foreach ($item in $names) {
+            # If the incoming pipeline object included an Owner property, it was captured in $invOwner.
+            # If the caller passed -Owner to this cmdlet, $allowedOwners contains the allowed owner(s).
+            # When both are present, only install items whose owner matches one of the allowed owners.
+            $itemOwner = $null
+            if ($invOwner) { $itemOwner = $invOwner }
+            if ($itemOwner -is [System.Array]) { $itemOwner = $itemOwner[0] }
+
+            if ($allowedOwners -and $itemOwner) {
+                if ($itemOwner -notin $allowedOwners) {
+                    Write-Host "Skipping '$item' because its owner '$itemOwner' is not in the specified Owner list ($($allowedOwners -join ','))" -ForegroundColor Yellow
+                    continue
+                }
+            }
+
             # For each item, build parameters for Get-ChatmodeContent. Use per-call overrides if present.
             $params = @{ ChatModeName = $item }
 
+            # Prefer script-scoped repo owner/name when present
             if ($script:RepoOwner) { $params.Owner = $script:RepoOwner }
             if ($script:RepoName) { $params.RepoName = $script:RepoName }
 
-            if ($Owner) { $params.Owner = $Owner }
+            # If the pipeline object provided an owner, use it
+            if ($itemOwner) { $params.Owner = $itemOwner }
+
+            # If caller provided an Owner parameter and we still don't have an Owner to call the API with,
+            # use the first allowed owner as the source repo to fetch content from.
+            if (-not $params.Owner -and $allowedOwners) { $params.Owner = $allowedOwners[0] }
+
             if ($RepoName) { $params.RepoName = $RepoName }
 
             if ($params.Owner -and -not $params.RepoName -and $script:RepoMap -and $script:RepoMap.ContainsKey($params.Owner)) {
