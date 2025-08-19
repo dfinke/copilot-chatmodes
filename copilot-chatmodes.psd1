@@ -1,6 +1,6 @@
 @{
     RootModule        = 'copilot-chatmodes.psm1'
-    ModuleVersion     = '0.2.0'
+    ModuleVersion     = '0.3.0'
     GUID              = 'b80563ca-98f0-43ca-923c-6a6e13bf7aef'
     Author            = 'Doug FInke'
     Description       = 'Module to interact with the chatmodes directory of github/awesome-copilot using the GitHub REST API.'
